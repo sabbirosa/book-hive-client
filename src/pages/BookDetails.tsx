@@ -1,3 +1,4 @@
+import { LoadingSpinner } from "@/components/shared/loading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,13 +9,13 @@ import { Link, useNavigate, useParams } from "react-router";
 export default function BookDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   const { data, isLoading, error } = useGetBookByIdQuery(id!);
 
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
-        <div className="text-center">Loading book details...</div>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -48,8 +49,8 @@ export default function BookDetails() {
                   {book.title.charAt(0).toUpperCase()}
                 </div>
                 <div className="mt-4 space-y-2">
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     asChild
                     disabled={!book.available || book.copies === 0}
                   >
@@ -75,8 +76,12 @@ export default function BookDetails() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-3xl mb-2">{book.title}</CardTitle>
-                    <p className="text-xl text-muted-foreground">by {book.author}</p>
+                    <CardTitle className="text-3xl mb-2">
+                      {book.title}
+                    </CardTitle>
+                    <p className="text-xl text-muted-foreground">
+                      by {book.author}
+                    </p>
                   </div>
                   <Badge variant={book.available ? "default" : "secondary"}>
                     {book.available ? "Available" : "Unavailable"}
@@ -86,36 +91,52 @@ export default function BookDetails() {
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Genre</h3>
+                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                      Genre
+                    </h3>
                     <p className="text-lg">{book.genre}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">ISBN</h3>
+                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                      ISBN
+                    </h3>
                     <p className="text-lg font-mono">{book.isbn}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Available Copies</h3>
+                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                      Available Copies
+                    </h3>
                     <p className="text-lg font-semibold">{book.copies}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Status</h3>
+                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                      Status
+                    </h3>
                     <p className="text-lg">
-                      {book.available && book.copies > 0 ? "Available for borrowing" : "Not available"}
+                      {book.available && book.copies > 0
+                        ? "Available for borrowing"
+                        : "Not available"}
                     </p>
                   </div>
                 </div>
 
                 {book.description && (
                   <div>
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">Description</h3>
-                    <p className="text-base leading-relaxed">{book.description}</p>
+                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">
+                      Description
+                    </h3>
+                    <p className="text-base leading-relaxed">
+                      {book.description}
+                    </p>
                   </div>
                 )}
 
                 <div className="text-sm text-muted-foreground border-t pt-4">
                   <p>Book ID: {book._id}</p>
                   {book.createdAt && (
-                    <p>Added: {new Date(book.createdAt).toLocaleDateString()}</p>
+                    <p>
+                      Added: {new Date(book.createdAt).toLocaleDateString()}
+                    </p>
                   )}
                 </div>
               </CardContent>
@@ -125,4 +146,4 @@ export default function BookDetails() {
       </div>
     </div>
   );
-} 
+}

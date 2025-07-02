@@ -1,10 +1,20 @@
+import { LoadingSpinner } from "@/components/shared/loading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useGetBookByIdQuery, useUpdateBookMutation } from "@/redux/api/booksApi";
+import {
+  useGetBookByIdQuery,
+  useUpdateBookMutation,
+} from "@/redux/api/booksApi";
 import type { UpdateBookRequest } from "@/types";
 import { ArrowLeft, Save } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -14,7 +24,7 @@ import { toast } from "sonner";
 export default function EditBook() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   const { data, isLoading: isLoadingBook, error } = useGetBookByIdQuery(id!);
   const [updateBook, { isLoading: isUpdating }] = useUpdateBookMutation();
 
@@ -46,8 +56,13 @@ export default function EditBook() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.title || !formData.author || !formData.genre || !formData.isbn) {
+
+    if (
+      !formData.title ||
+      !formData.author ||
+      !formData.genre ||
+      !formData.isbn
+    ) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -61,17 +76,20 @@ export default function EditBook() {
     }
   };
 
-  const handleInputChange = (field: keyof UpdateBookRequest, value: string | number | boolean) => {
-    setFormData(prev => ({
+  const handleInputChange = (
+    field: keyof UpdateBookRequest,
+    value: string | number | boolean
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   if (isLoadingBook) {
     return (
       <div className="container mx-auto py-8">
-        <div className="text-center">Loading book...</div>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -117,7 +135,9 @@ export default function EditBook() {
                   <Input
                     id="author"
                     value={formData.author}
-                    onChange={(e) => handleInputChange("author", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("author", e.target.value)
+                    }
                     placeholder="Enter author name"
                     required
                   />
@@ -167,7 +187,9 @@ export default function EditBook() {
                     type="number"
                     min="0"
                     value={formData.copies}
-                    onChange={(e) => handleInputChange("copies", parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange("copies", parseInt(e.target.value) || 0)
+                    }
                     required
                   />
                 </div>
@@ -176,7 +198,9 @@ export default function EditBook() {
                   <Label htmlFor="available">Available</Label>
                   <Select
                     value={formData.available ? "true" : "false"}
-                    onValueChange={(value) => handleInputChange("available", value === "true")}
+                    onValueChange={(value) =>
+                      handleInputChange("available", value === "true")
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -194,14 +218,20 @@ export default function EditBook() {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   placeholder="Enter book description"
                   rows={4}
                 />
               </div>
 
               <div className="flex justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => navigate(-1)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate(-1)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isUpdating}>
@@ -221,4 +251,4 @@ export default function EditBook() {
       </div>
     </div>
   );
-} 
+}

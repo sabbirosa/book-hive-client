@@ -49,7 +49,7 @@ export const borrowsApi = apiSlice.injectEndpoints({
 
     getTotalBorrowedForBook: builder.query<{ success: boolean; data: { totalBorrowed: number } }, string>({
       query: (bookId) => `borrows/book/${bookId}/total`,
-      providesTags: (result, error, bookId) => [{ type: 'Borrow', id: bookId }],
+      providesTags: (_result, _error, bookId) => [{ type: 'Borrow', id: bookId }],
     }),
 
     getBorrowStatistics: builder.query<{

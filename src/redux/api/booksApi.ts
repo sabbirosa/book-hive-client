@@ -32,7 +32,7 @@ export const booksApi = apiSlice.injectEndpoints({
 
     getBookById: builder.query<BookResponse, string>({
       query: (id) => `books/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Book', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Book', id }],
     }),
 
     getAvailableBooks: builder.query<BooksResponse, void>({
@@ -60,7 +60,7 @@ export const booksApi = apiSlice.injectEndpoints({
         method: 'PUT',
         body: bookData,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Book', id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Book', id }],
     }),
 
     deleteBook: builder.mutation<{ success: boolean; message: string }, string>({
@@ -77,7 +77,7 @@ export const booksApi = apiSlice.injectEndpoints({
         method: 'PATCH',
         body: { available },
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Book', id }],
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Book', id }],
     }),
   }),
 });

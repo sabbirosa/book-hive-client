@@ -2,7 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateBookMutation } from "@/redux/api/booksApi";
 import type { CreateBookRequest } from "@/types";
@@ -27,8 +33,13 @@ export default function CreateBook() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.title || !formData.author || !formData.genre || !formData.isbn) {
+
+    if (
+      !formData.title ||
+      !formData.author ||
+      !formData.genre ||
+      !formData.isbn
+    ) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -42,10 +53,13 @@ export default function CreateBook() {
     }
   };
 
-  const handleInputChange = (field: keyof CreateBookRequest, value: string | number | boolean) => {
-    setFormData(prev => ({
+  const handleInputChange = (
+    field: keyof CreateBookRequest,
+    value: string | number | boolean
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -82,7 +96,9 @@ export default function CreateBook() {
                   <Input
                     id="author"
                     value={formData.author}
-                    onChange={(e) => handleInputChange("author", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("author", e.target.value)
+                    }
                     placeholder="Enter author name"
                     required
                   />
@@ -132,7 +148,9 @@ export default function CreateBook() {
                     type="number"
                     min="1"
                     value={formData.copies}
-                    onChange={(e) => handleInputChange("copies", parseInt(e.target.value) || 1)}
+                    onChange={(e) =>
+                      handleInputChange("copies", parseInt(e.target.value) || 1)
+                    }
                     required
                   />
                 </div>
@@ -143,14 +161,20 @@ export default function CreateBook() {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   placeholder="Enter book description"
                   rows={4}
                 />
               </div>
 
               <div className="flex justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => navigate("/books")}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate("/books")}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isLoading}>
@@ -170,4 +194,4 @@ export default function CreateBook() {
       </div>
     </div>
   );
-} 
+}

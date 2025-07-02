@@ -1,3 +1,4 @@
+import { LoadingSpinner } from "@/components/shared/loading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +15,12 @@ import { toast } from "sonner";
 export default function BorrowBook() {
   const { bookId } = useParams<{ bookId: string }>();
   const navigate = useNavigate();
-  
-  const { data: bookData, isLoading: isLoadingBook, error: bookError } = useGetBookByIdQuery(bookId!);
+
+  const {
+    data: bookData,
+    isLoading: isLoadingBook,
+    error: bookError,
+  } = useGetBookByIdQuery(bookId!);
   const [createBorrow, { isLoading: isBorrowing }] = useCreateBorrowMutation();
 
   const [formData, setFormData] = useState({
@@ -26,11 +31,11 @@ export default function BorrowBook() {
   // Set minimum date to tomorrow
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split('T')[0];
+  const minDate = tomorrow.toISOString().split("T")[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!formData.quantity || !formData.dueDate) {
       toast.error("Please fill in all required fields");
@@ -46,7 +51,7 @@ export default function BorrowBook() {
     // Validate against available copies
     if (bookData?.data) {
       const book = bookData.data;
-      
+
       if (!book.available) {
         toast.error("This book is currently not available for borrowing");
         return;
@@ -58,7 +63,9 @@ export default function BorrowBook() {
       }
 
       if (formData.quantity > book.copies) {
-        toast.error(`Only ${book.copies} copies available. Please reduce the quantity.`);
+        toast.error(
+          `Only ${book.copies} copies available. Please reduce the quantity.`
+        );
         return;
       }
     }
@@ -67,7 +74,7 @@ export default function BorrowBook() {
     const selectedDate = new Date(formData.dueDate);
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     if (selectedDate <= new Date()) {
       toast.error("Due date must be in the future");
       return;
@@ -84,16 +91,17 @@ export default function BorrowBook() {
       toast.success("Book borrowed successfully! Redirecting to summary...");
       navigate("/borrow-summary");
     } catch (error: any) {
-      const message = error?.data?.message || error?.message || "Failed to borrow book";
+      const message =
+        error?.data?.message || error?.message || "Failed to borrow book";
       toast.error(message);
       console.error("Borrow error:", error);
     }
   };
 
   const handleInputChange = (field: string, value: string | number) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const updated = { ...prev, [field]: value };
-      
+
       // Real-time validation for quantity
       if (field === "quantity" && bookData?.data) {
         const quantity = Number(value);
@@ -101,7 +109,7 @@ export default function BorrowBook() {
           toast.error(`Only ${bookData.data.copies} copies available`);
         }
       }
-      
+
       return updated;
     });
   };
@@ -109,7 +117,7 @@ export default function BorrowBook() {
   if (isLoadingBook) {
     return (
       <div className="container mx-auto py-8">
-        <div className="text-center">Loading book...</div>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -132,9 +140,7 @@ export default function BorrowBook() {
           <p className="text-muted-foreground mb-4">
             Sorry, "{book.title}" is currently not available for borrowing.
           </p>
-          <Button onClick={() => navigate("/books")}>
-            Browse Other Books
-          </Button>
+          <Button onClick={() => navigate("/books")}>Browse Other Books</Button>
         </div>
       </div>
     );
@@ -195,7 +201,12 @@ export default function BorrowBook() {
                     min="1"
                     max={book.copies}
                     value={formData.quantity}
-                    onChange={(e) => handleInputChange("quantity", parseInt(e.target.value) || 1)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "quantity",
+                        parseInt(e.target.value) || 1
+                      )
+                    }
                     placeholder="Number of copies to borrow"
                     required
                   />
@@ -211,7 +222,9 @@ export default function BorrowBook() {
                     type="date"
                     min={minDate}
                     value={formData.dueDate}
-                    onChange={(e) => handleInputChange("dueDate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("dueDate", e.target.value)
+                    }
                     required
                   />
                   <p className="text-sm text-muted-foreground">
@@ -226,17 +239,29 @@ export default function BorrowBook() {
                   <li>• You are responsible for the book(s) until returned</li>
                   <li>• Late returns may incur fees</li>
                   <li>• Please return books in good condition</li>
-                  <li>• Contact the library if you need to extend your borrowing period</li>
+                  <li>
+                    • Contact the library if you need to extend your borrowing
+                    period
+                  </li>
                 </ul>
               </div>
 
               <div className="flex justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => navigate(-1)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate(-1)}
+                >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
-                  disabled={isBorrowing || !book.available || book.copies < 1 || formData.quantity > book.copies}
+                <Button
+                  type="submit"
+                  disabled={
+                    isBorrowing ||
+                    !book.available ||
+                    book.copies < 1 ||
+                    formData.quantity > book.copies
+                  }
                 >
                   {isBorrowing ? (
                     "Processing..."
@@ -254,4 +279,4 @@ export default function BorrowBook() {
       </div>
     </div>
   );
-} 
+}

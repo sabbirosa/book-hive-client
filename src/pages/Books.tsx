@@ -1,11 +1,36 @@
+import { LoadingSpinner } from "@/components/shared/loading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useDeleteBookMutation, useGetAllBooksQuery } from "@/redux/api/booksApi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  useDeleteBookMutation,
+  useGetAllBooksQuery,
+} from "@/redux/api/booksApi";
 import type { Book } from "@/types";
 import { BookmarkPlus, Edit, Eye, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -17,14 +42,14 @@ export default function Books() {
   const [genreFilter, setGenreFilter] = useState("all");
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [page, setPage] = useState(1);
-  const [deleteBookId, setDeleteBookId] = useState<string | null>(null);
 
   const { data, isLoading, error } = useGetAllBooksQuery({
     page,
     limit: 10,
     search: searchTerm || undefined,
     genre: genreFilter !== "all" ? genreFilter : undefined,
-    available: availabilityFilter !== "all" ? availabilityFilter === "true" : undefined,
+    available:
+      availabilityFilter !== "all" ? availabilityFilter === "true" : undefined,
   });
 
   const [deleteBook, { isLoading: isDeleting }] = useDeleteBookMutation();
@@ -33,10 +58,10 @@ export default function Books() {
     try {
       await deleteBook(id).unwrap();
       toast.success("Book deleted successfully");
-      setDeleteBookId(null);
       // The RTK Query cache will automatically update due to invalidatesTags
     } catch (error: any) {
-      const message = error?.data?.message || error?.message || "Failed to delete book";
+      const message =
+        error?.data?.message || error?.message || "Failed to delete book";
       toast.error(message);
       console.error("Delete error:", error);
     }
@@ -45,7 +70,7 @@ export default function Books() {
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
-        <div className="text-center">Loading books...</div>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -102,7 +127,10 @@ export default function Books() {
                 <SelectItem value="History">History</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+            <Select
+              value={availabilityFilter}
+              onValueChange={setAvailabilityFilter}
+            >
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="Filter by availability" />
               </SelectTrigger>
@@ -153,9 +181,9 @@ export default function Books() {
                             <Edit className="h-4 w-4" />
                           </Link>
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           asChild
                           disabled={!book.available || book.copies === 0}
                         >
@@ -165,7 +193,10 @@ export default function Books() {
                         </Button>
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" onClick={() => setDeleteBookId(book._id)}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                            >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
@@ -173,15 +204,18 @@ export default function Books() {
                             <DialogHeader>
                               <DialogTitle>Delete Book</DialogTitle>
                               <DialogDescription>
-                                Are you sure you want to delete "{book.title}"? This action cannot be undone.
+                                Are you sure you want to delete "{book.title}"?
+                                This action cannot be undone.
                               </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
-                              <Button variant="outline" onClick={() => setDeleteBookId(null)}>
+                              <Button
+                                variant="outline"
+                              >
                                 Cancel
                               </Button>
-                              <Button 
-                                variant="destructive" 
+                              <Button
+                                variant="destructive"
                                 onClick={() => handleDelete(book._id)}
                                 disabled={isDeleting}
                               >
@@ -228,4 +262,4 @@ export default function Books() {
       </Card>
     </div>
   );
-} 
+}
