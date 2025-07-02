@@ -1,20 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateBookMutation } from "@/redux/api/booksApi";
@@ -26,22 +26,31 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const createBookSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title cannot exceed 200 characters"),
-  author: z.string().min(1, "Author is required").max(100, "Author cannot exceed 100 characters"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(200, "Title cannot exceed 200 characters"),
+  author: z
+    .string()
+    .min(1, "Author is required")
+    .max(100, "Author cannot exceed 100 characters"),
   genre: z.string().min(1, "Genre is required"),
   isbn: z.string().min(1, "ISBN is required"),
-  description: z.string().default(""),
-  copies: z.number().min(1, "Number of copies must be at least 1").int("Copies must be a whole number"),
-  available: z.boolean().default(true),
+  description: z.string(),
+  copies: z
+    .number()
+    .min(1, "Number of copies must be at least 1")
+    .int("Copies must be a whole number"),
+  available: z.boolean(),
 });
 
-type CreateBookForm = z.infer<typeof createBookSchema>;
+type CreateBookFormData = z.infer<typeof createBookSchema>;
 
 export default function CreateBook() {
   const navigate = useNavigate();
   const [createBook, { isLoading }] = useCreateBookMutation();
 
-  const form = useForm<CreateBookForm>({
+  const form = useForm<CreateBookFormData>({
     resolver: zodResolver(createBookSchema),
     defaultValues: {
       title: "",
@@ -54,7 +63,7 @@ export default function CreateBook() {
     },
   });
 
-  const onSubmit = async (data: CreateBookForm) => {
+  const onSubmit = async (data: CreateBookFormData) => {
     try {
       await createBook(data).unwrap();
       toast.success("Book created successfully");
@@ -80,7 +89,10 @@ export default function CreateBook() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <div className="grid md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -116,15 +128,20 @@ export default function CreateBook() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Genre *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select genre" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="Fiction">Fiction</SelectItem>
-                            <SelectItem value="Non-Fiction">Non-Fiction</SelectItem>
+                            <SelectItem value="Non-Fiction">
+                              Non-Fiction
+                            </SelectItem>
                             <SelectItem value="Mystery">Mystery</SelectItem>
                             <SelectItem value="Romance">Romance</SelectItem>
                             <SelectItem value="Sci-Fi">Sci-Fi</SelectItem>
@@ -133,7 +150,9 @@ export default function CreateBook() {
                             <SelectItem value="History">History</SelectItem>
                             <SelectItem value="Self-Help">Self-Help</SelectItem>
                             <SelectItem value="Business">Business</SelectItem>
-                            <SelectItem value="Technology">Technology</SelectItem>
+                            <SelectItem value="Technology">
+                              Technology
+                            </SelectItem>
                             <SelectItem value="Travel">Travel</SelectItem>
                           </SelectContent>
                         </Select>
@@ -167,7 +186,9 @@ export default function CreateBook() {
                             type="number"
                             min="1"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value) || 1)
+                            }
                           />
                         </FormControl>
                         <FormMessage />

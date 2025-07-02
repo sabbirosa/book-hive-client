@@ -2,49 +2,76 @@ import { LoadingSpinner } from "@/components/shared/loading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
-    useGetBookByIdQuery,
-    useUpdateBookMutation,
+  useGetBookByIdQuery,
+  useUpdateBookMutation,
 } from "@/redux/api/booksApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Save } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 
 const updateBookSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title cannot exceed 200 characters"),
-  author: z.string().min(1, "Author is required").max(100, "Author cannot exceed 100 characters"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(200, "Title cannot exceed 200 characters"),
+  author: z
+    .string()
+    .min(1, "Author is required")
+    .max(100, "Author cannot exceed 100 characters"),
   genre: z.string().min(1, "Genre is required"),
   isbn: z.string().min(1, "ISBN is required"),
   description: z.string(),
-  copies: z.number().min(0, "Copies cannot be negative").int("Copies must be a whole number"),
+  copies: z
+    .number()
+    .min(0, "Copies cannot be negative")
+    .int("Copies must be a whole number"),
   available: z.boolean(),
 });
 
 type UpdateBookForm = z.infer<typeof updateBookSchema>;
 
+const GENRE_OPTIONS = [
+  "Fiction",
+  "Non-Fiction",
+  "Mystery",
+  "Romance",
+  "Science",
+  "Sci-Fi",
+  "Fantasy",
+  "Biography",
+  "History",
+  "Psychology",
+  "Self-Help",
+  "Business",
+  "Technology",
+  "Travel",
+];
+
 export default function EditBook() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [isFormReady, setIsFormReady] = useState(false);
 
   const { data, isLoading: isLoadingBook, error } = useGetBookByIdQuery(id!);
   const [updateBook, { isLoading: isUpdating }] = useUpdateBookMutation();
@@ -62,19 +89,19 @@ export default function EditBook() {
     },
   });
 
-  // Populate form when book data is loaded
   useEffect(() => {
     if (data?.data) {
       const book = data.data;
-      form.reset({
-        title: book.title,
-        author: book.author,
-        genre: book.genre,
-        isbn: book.isbn,
-        description: book.description || "",
-        copies: book.copies,
-        available: book.available,
-      });
+
+      form.setValue("title", book.title || "");
+      form.setValue("author", book.author || "");
+      form.setValue("genre", book.genre || "");
+      form.setValue("isbn", book.isbn || "");
+      form.setValue("description", book.description || "");
+      form.setValue("copies", book.copies || 1);
+      form.setValue("available", book.available ?? true);
+
+      setIsFormReady(true);
     }
   }, [data, form]);
 
@@ -88,7 +115,7 @@ export default function EditBook() {
     }
   };
 
-  if (isLoadingBook) {
+  if (isLoadingBook || !isFormReady) {
     return (
       <div className="container mx-auto py-8">
         <LoadingSpinner />
@@ -120,7 +147,10 @@ export default function EditBook() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <div className="grid md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -156,25 +186,21 @@ export default function EditBook() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Genre *</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ""}
+                        >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select genre" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Fiction">Fiction</SelectItem>
-                            <SelectItem value="Non-Fiction">Non-Fiction</SelectItem>
-                            <SelectItem value="Mystery">Mystery</SelectItem>
-                            <SelectItem value="Romance">Romance</SelectItem>
-                            <SelectItem value="Sci-Fi">Sci-Fi</SelectItem>
-                            <SelectItem value="Fantasy">Fantasy</SelectItem>
-                            <SelectItem value="Biography">Biography</SelectItem>
-                            <SelectItem value="History">History</SelectItem>
-                            <SelectItem value="Self-Help">Self-Help</SelectItem>
-                            <SelectItem value="Business">Business</SelectItem>
-                            <SelectItem value="Technology">Technology</SelectItem>
-                            <SelectItem value="Travel">Travel</SelectItem>
+                            {GENRE_OPTIONS.map((genre) => (
+                              <SelectItem key={genre} value={genre}>
+                                {genre}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -207,7 +233,9 @@ export default function EditBook() {
                             type="number"
                             min="0"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value) || 0)
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -222,7 +250,9 @@ export default function EditBook() {
                       <FormItem>
                         <FormLabel>Available</FormLabel>
                         <Select
-                          onValueChange={(value) => field.onChange(value === "true")}
+                          onValueChange={(value) =>
+                            field.onChange(value === "true")
+                          }
                           value={field.value ? "true" : "false"}
                         >
                           <FormControl>
