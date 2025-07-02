@@ -104,13 +104,13 @@ export default function CreateBook() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 w-full">
                   <Label htmlFor="genre">Genre *</Label>
                   <Select
                     value={formData.genre}
                     onValueChange={(value) => handleInputChange("genre", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select genre" />
                     </SelectTrigger>
                     <SelectContent>

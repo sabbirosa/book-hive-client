@@ -70,7 +70,7 @@ export default function EditBook() {
     try {
       await updateBook({ id: id!, bookData: formData }).unwrap();
       toast.success("Book updated successfully");
-      navigate(`/books/${id}`);
+      navigate("/books");
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to update book");
     }
@@ -149,7 +149,7 @@ export default function EditBook() {
                     value={formData.genre}
                     onValueChange={(value) => handleInputChange("genre", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select genre" />
                     </SelectTrigger>
                     <SelectContent>

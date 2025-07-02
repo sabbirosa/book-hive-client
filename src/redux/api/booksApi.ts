@@ -60,7 +60,11 @@ export const booksApi = apiSlice.injectEndpoints({
         method: 'PUT',
         body: bookData,
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Book', id }],
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Book', id },
+        'Book', // Invalidate all book queries to refresh the list
+        'Borrow', // Also invalidate borrow queries in case availability changed
+      ],
     }),
 
     deleteBook: builder.mutation<{ success: boolean; message: string }, string>({
@@ -68,7 +72,7 @@ export const booksApi = apiSlice.injectEndpoints({
         url: `books/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Book'],
+      invalidatesTags: ['Book', 'Borrow'], // Also invalidate borrow records when book is deleted
     }),
 
     updateBookAvailability: builder.mutation<BookResponse, { id: string; available: boolean }>({
@@ -77,7 +81,10 @@ export const booksApi = apiSlice.injectEndpoints({
         method: 'PATCH',
         body: { available },
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Book', id }],
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'Book', id },
+        'Book', // Invalidate all book queries to refresh the list
+      ],
     }),
   }),
 });

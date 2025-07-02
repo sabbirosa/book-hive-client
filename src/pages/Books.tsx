@@ -3,50 +3,61 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import {
-  useDeleteBookMutation,
-  useGetAllBooksQuery,
+    useDeleteBookMutation,
+    useGetAllBooksQuery,
 } from "@/redux/api/booksApi";
 import type { Book } from "@/types";
-import { BookmarkPlus, Edit, Eye, Plus, Search, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { BookmarkPlus, Edit, Eye, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 
 export default function Books() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [genreFilter, setGenreFilter] = useState("all");
   const [availabilityFilter, setAvailabilityFilter] = useState("all");
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, error } = useGetAllBooksQuery({
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setPage(1); // Reset to first page on search
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const { data, isLoading, error, refetch } = useGetAllBooksQuery({
     page,
     limit: 10,
-    search: searchTerm || undefined,
+    search: debouncedSearchTerm || undefined,
     genre: genreFilter !== "all" ? genreFilter : undefined,
     available:
       availabilityFilter !== "all" ? availabilityFilter === "true" : undefined,
@@ -65,6 +76,11 @@ export default function Books() {
       toast.error(message);
       console.error("Delete error:", error);
     }
+  };
+
+  const handleRefresh = () => {
+    refetch();
+    toast.success("Data refreshed");
   };
 
   if (isLoading) {
@@ -89,12 +105,18 @@ export default function Books() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-2xl">Books Library</CardTitle>
-            <Button asChild>
-              <Link to="/create-book" className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Add New Book
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleRefresh} size="sm">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+              <Button asChild>
+                <Link to="/create-book" className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add New Book
+                </Link>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

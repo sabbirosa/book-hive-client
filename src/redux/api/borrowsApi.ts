@@ -58,7 +58,13 @@ export const borrowsApi = apiSlice.injectEndpoints({
         totalBorrows: number;
         totalQuantityBorrowed: number;
         overdueCount: number;
-        mostBorrowedBook: any;
+        borrowsByMonth: any[];
+        mostBorrowedBooks: Array<{
+          title: string;
+          author: string;
+          totalBorrowed: number;
+          borrowCount: number;
+        }>;
       };
     }, void>({
       query: () => 'borrows/statistics',

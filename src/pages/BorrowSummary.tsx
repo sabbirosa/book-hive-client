@@ -131,10 +131,10 @@ export default function BorrowSummary() {
             </CardHeader>
             <CardContent>
               <div className="text-sm font-bold truncate">
-                {stats.mostBorrowedBook?.book?.title || "N/A"}
+                {stats.mostBorrowedBooks?.[0]?.title || "N/A"}
               </div>
               <p className="text-xs text-muted-foreground">
-                {stats.mostBorrowedBook?.totalQuantityBorrowed || 0} times
+                {stats.mostBorrowedBooks?.[0]?.totalBorrowed || 0} items
                 borrowed
               </p>
             </CardContent>
