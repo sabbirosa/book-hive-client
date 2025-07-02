@@ -1,0 +1,16 @@
+export const GENRE_OPTIONS = [
+  "Fiction",
+  "Non-Fiction",
+  "Mystery",
+  "Romance",
+  "Science",
+  "Sci-Fi",
+  "Fantasy",
+  "Biography",
+  "History",
+  "Psychology",
+  "Self-Help",
+  "Business",
+  "Technology",
+  "Travel",
+];

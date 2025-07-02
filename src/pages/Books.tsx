@@ -3,36 +3,45 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
+import { GENRE_OPTIONS } from "@/constants";
 import {
-    useDeleteBookMutation,
-    useGetAllBooksQuery,
+  useDeleteBookMutation,
+  useGetAllBooksQuery,
 } from "@/redux/api/booksApi";
 import type { Book } from "@/types";
-import { BookmarkPlus, Edit, Eye, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import {
+  BookmarkPlus,
+  Edit,
+  Eye,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
@@ -70,9 +79,28 @@ export default function Books() {
       await deleteBook(id).unwrap();
       toast.success("Book deleted successfully");
       // The RTK Query cache will automatically update due to invalidatesTags
-    } catch (error: any) {
-      const message =
-        error?.data?.message || error?.message || "Failed to delete book";
+    } catch (error: unknown) {
+      let message = "Failed to delete book";
+
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        typeof (error as { data?: unknown }).data === "object" &&
+        (error as { data?: unknown }).data !== null &&
+        "message" in (error as { data: { message?: unknown } }).data!
+      ) {
+        const errorData = (error as { data: { message: string } }).data;
+        message = errorData.message;
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error &&
+        typeof (error as { message?: unknown }).message === "string"
+      ) {
+        message = (error as { message: string }).message;
+      }
+
       toast.error(message);
       console.error("Delete error:", error);
     }
@@ -139,14 +167,11 @@ export default function Books() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Genres</SelectItem>
-                <SelectItem value="Fiction">Fiction</SelectItem>
-                <SelectItem value="Non-Fiction">Non-Fiction</SelectItem>
-                <SelectItem value="Mystery">Mystery</SelectItem>
-                <SelectItem value="Romance">Romance</SelectItem>
-                <SelectItem value="Sci-Fi">Sci-Fi</SelectItem>
-                <SelectItem value="Fantasy">Fantasy</SelectItem>
-                <SelectItem value="Biography">Biography</SelectItem>
-                <SelectItem value="History">History</SelectItem>
+                {GENRE_OPTIONS.map((genre) => (
+                  <SelectItem key={genre} value={genre}>
+                    {genre}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select
@@ -215,10 +240,7 @@ export default function Books() {
                         </Button>
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                            >
+                            <Button variant="ghost" size="sm">
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
@@ -231,11 +253,7 @@ export default function Books() {
                               </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
-                              <Button
-                                variant="outline"
-                              >
-                                Cancel
-                              </Button>
+                              <Button variant="outline">Cancel</Button>
                               <Button
                                 variant="destructive"
                                 onClick={() => handleDelete(book._id)}

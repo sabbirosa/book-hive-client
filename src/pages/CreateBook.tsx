@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { GENRE_OPTIONS } from "@/constants";
 import { useCreateBookMutation } from "@/redux/api/booksApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Save } from "lucide-react";
@@ -68,8 +69,20 @@ export default function CreateBook() {
       await createBook(data).unwrap();
       toast.success("Book created successfully");
       navigate("/books");
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to create book");
+    } catch (error: unknown) {
+      type ErrorWithMessage = { data: { message: string } };
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        typeof (error as { data?: unknown }).data === "object" &&
+        (error as { data?: unknown }).data !== null &&
+        "message" in (error as { data: { message?: unknown } }).data!
+      ) {
+        toast.error((error as ErrorWithMessage).data.message);
+      } else {
+        toast.error("Failed to create book");
+      }
     }
   };
 
@@ -138,22 +151,11 @@ export default function CreateBook() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Fiction">Fiction</SelectItem>
-                            <SelectItem value="Non-Fiction">
-                              Non-Fiction
-                            </SelectItem>
-                            <SelectItem value="Mystery">Mystery</SelectItem>
-                            <SelectItem value="Romance">Romance</SelectItem>
-                            <SelectItem value="Sci-Fi">Sci-Fi</SelectItem>
-                            <SelectItem value="Fantasy">Fantasy</SelectItem>
-                            <SelectItem value="Biography">Biography</SelectItem>
-                            <SelectItem value="History">History</SelectItem>
-                            <SelectItem value="Self-Help">Self-Help</SelectItem>
-                            <SelectItem value="Business">Business</SelectItem>
-                            <SelectItem value="Technology">
-                              Technology
-                            </SelectItem>
-                            <SelectItem value="Travel">Travel</SelectItem>
+                            {GENRE_OPTIONS.map((genre) => (
+                              <SelectItem key={genre} value={genre}>
+                                {genre}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />

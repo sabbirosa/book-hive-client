@@ -2,18 +2,17 @@ import { LoadingSpinner } from "@/components/shared/loading";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import {
-  useGetBorrowStatisticsQuery,
-  useGetBorrowSummaryQuery,
+    useGetBorrowStatisticsQuery,
+    useGetBorrowSummaryQuery,
 } from "@/redux/api/borrowsApi";
-import type { BorrowSummary } from "@/types";
 import { BarChart3, BookOpen, Clock, TrendingUp } from "lucide-react";
 
 export default function BorrowSummary() {
@@ -176,7 +175,7 @@ export default function BorrowSummary() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {summary.map((item: BorrowSummary) => (
+                  {summary.map((item) => (
                     <TableRow key={item._id}>
                       <TableCell className="font-medium">
                         {item.book?.title || "Unknown Title"}

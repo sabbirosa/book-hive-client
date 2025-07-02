@@ -96,5 +96,5 @@ export interface BorrowSummaryResponse {
 export interface ApiError {
   success: false;
   message: string;
-  errors?: Record<string, any>;
-} 
+  errors?: Record<string, unknown>;
+}

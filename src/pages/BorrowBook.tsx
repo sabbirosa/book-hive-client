@@ -22,13 +22,18 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const borrowBookSchema = z.object({
-  quantity: z.number().min(1, "Quantity must be at least 1").int("Quantity must be a whole number"),
-  dueDate: z.date({
-    required_error: "Due date is required",
-    invalid_type_error: "Please select a valid date",
-  }).refine((date) => date > new Date(), {
-    message: "Due date must be in the future",
-  }),
+  quantity: z
+    .number()
+    .min(1, "Quantity must be at least 1")
+    .int("Quantity must be a whole number"),
+  dueDate: z
+    .date({
+      required_error: "Due date is required",
+      invalid_type_error: "Please select a valid date",
+    })
+    .refine((date) => date > new Date(), {
+      message: "Due date must be in the future",
+    }),
 });
 
 type BorrowBookForm = z.infer<typeof borrowBookSchema>;
@@ -88,9 +93,23 @@ export default function BorrowBook() {
       await createBorrow(borrowRequest).unwrap();
       toast.success("Book borrowed successfully! Redirecting to summary...");
       navigate("/borrow-summary");
-    } catch (error: any) {
-      const message =
-        error?.data?.message || error?.message || "Failed to borrow book";
+    } catch (error: unknown) {
+      let message = "Failed to borrow book";
+      if (typeof error === "object" && error !== null) {
+        type ErrorWithData = { data?: { message?: string } };
+        type ErrorWithMessage = { message?: string };
+        if (
+          "data" in error &&
+          typeof (error as ErrorWithData).data?.message === "string"
+        ) {
+          message = (error as ErrorWithData).data!.message!;
+        } else if (
+          "message" in error &&
+          typeof (error as ErrorWithMessage).message === "string"
+        ) {
+          message = (error as ErrorWithMessage).message!;
+        }
+      }
       toast.error(message);
       console.error("Borrow error:", error);
     }
@@ -174,7 +193,10 @@ export default function BorrowBook() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <div className="grid md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -192,10 +214,12 @@ export default function BorrowBook() {
                             onChange={(e) => {
                               const value = parseInt(e.target.value) || 1;
                               field.onChange(value);
-                              
+
                               // Real-time validation for quantity
                               if (value > book.copies) {
-                                toast.error(`Only ${book.copies} copies available`);
+                                toast.error(
+                                  `Only ${book.copies} copies available`
+                                );
                               }
                             }}
                           />
@@ -234,7 +258,9 @@ export default function BorrowBook() {
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                   <h4 className="font-semibold mb-2">Borrowing Terms:</h4>
                   <ul className="text-sm space-y-1">
-                    <li>• You are responsible for the book(s) until returned</li>
+                    <li>
+                      • You are responsible for the book(s) until returned
+                    </li>
                     <li>• Late returns may incur fees</li>
                     <li>• Please return books in good condition</li>
                     <li>

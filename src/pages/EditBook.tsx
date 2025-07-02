@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { GENRE_OPTIONS } from "@/constants";
 import {
   useGetBookByIdQuery,
   useUpdateBookMutation,
@@ -50,23 +51,6 @@ const updateBookSchema = z.object({
 });
 
 type UpdateBookForm = z.infer<typeof updateBookSchema>;
-
-const GENRE_OPTIONS = [
-  "Fiction",
-  "Non-Fiction",
-  "Mystery",
-  "Romance",
-  "Science",
-  "Sci-Fi",
-  "Fantasy",
-  "Biography",
-  "History",
-  "Psychology",
-  "Self-Help",
-  "Business",
-  "Technology",
-  "Travel",
-];
 
 export default function EditBook() {
   const { id } = useParams<{ id: string }>();
@@ -110,8 +94,18 @@ export default function EditBook() {
       await updateBook({ id: id!, bookData: formData }).unwrap();
       toast.success("Book updated successfully");
       navigate("/books");
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update book");
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        typeof (error as { data?: { message?: string } }).data?.message ===
+          "string"
+      ) {
+        toast.error((error as { data: { message: string } }).data.message);
+      } else {
+        toast.error("Failed to update book");
+      }
     }
   };
 
@@ -256,7 +250,7 @@ export default function EditBook() {
                           value={field.value ? "true" : "false"}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full">
                               <SelectValue />
                             </SelectTrigger>
                           </FormControl>

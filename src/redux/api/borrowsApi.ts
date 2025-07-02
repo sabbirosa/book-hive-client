@@ -1,74 +1,88 @@
 import type {
-    Borrow,
-    BorrowsResponse,
-    BorrowSummaryResponse,
-    CreateBorrowRequest
-} from '@/types';
-import { apiSlice } from './apiSlice';
+  Borrow,
+  BorrowsResponse,
+  BorrowSummaryResponse,
+  CreateBorrowRequest,
+} from "@/types";
+import { apiSlice } from "./apiSlice";
 
 export const borrowsApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getAllBorrows: builder.query<BorrowsResponse, {
-      page?: number;
-      limit?: number;
-      book?: string;
-      overdue?: boolean;
-      sortBy?: string;
-      sortOrder?: 'asc' | 'desc';
-    }>({
+    getAllBorrows: builder.query<
+      BorrowsResponse,
+      {
+        page?: number;
+        limit?: number;
+        book?: string;
+        overdue?: boolean;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+      }
+    >({
       query: (params = {}) => {
         const searchParams = new URLSearchParams();
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== '') {
+          if (value !== undefined && value !== "") {
             searchParams.append(key, String(value));
           }
         });
         return `borrows?${searchParams.toString()}`;
       },
-      providesTags: ['Borrow'],
+      providesTags: ["Borrow"],
     }),
 
-    createBorrow: builder.mutation<{ success: boolean; message: string; data: Borrow }, CreateBorrowRequest>({
+    createBorrow: builder.mutation<
+      { success: boolean; message: string; data: Borrow },
+      CreateBorrowRequest
+    >({
       query: (borrowData) => ({
-        url: 'borrows',
-        method: 'POST',
+        url: "borrows",
+        method: "POST",
         body: borrowData,
       }),
-      invalidatesTags: ['Borrow', 'Book'],
+      invalidatesTags: ["Borrow", "Book"],
     }),
 
     getBorrowSummary: builder.query<BorrowSummaryResponse, void>({
-      query: () => 'borrows/summary',
-      providesTags: ['Borrow'],
+      query: () => "borrows/summary",
+      providesTags: ["Borrow"],
     }),
 
     getOverdueBooks: builder.query<BorrowsResponse, void>({
-      query: () => 'borrows/overdue',
-      providesTags: ['Borrow'],
+      query: () => "borrows/overdue",
+      providesTags: ["Borrow"],
     }),
 
-    getTotalBorrowedForBook: builder.query<{ success: boolean; data: { totalBorrowed: number } }, string>({
+    getTotalBorrowedForBook: builder.query<
+      { success: boolean; data: { totalBorrowed: number } },
+      string
+    >({
       query: (bookId) => `borrows/book/${bookId}/total`,
-      providesTags: (_result, _error, bookId) => [{ type: 'Borrow', id: bookId }],
+      providesTags: (_result, _error, bookId) => [
+        { type: "Borrow", id: bookId },
+      ],
     }),
 
-    getBorrowStatistics: builder.query<{
-      success: boolean;
-      data: {
-        totalBorrows: number;
-        totalQuantityBorrowed: number;
-        overdueCount: number;
-        borrowsByMonth: any[];
-        mostBorrowedBooks: Array<{
-          title: string;
-          author: string;
-          totalBorrowed: number;
-          borrowCount: number;
-        }>;
-      };
-    }, void>({
-      query: () => 'borrows/statistics',
-      providesTags: ['Borrow'],
+    getBorrowStatistics: builder.query<
+      {
+        success: boolean;
+        data: {
+          totalBorrows: number;
+          totalQuantityBorrowed: number;
+          overdueCount: number;
+          borrowsByMonth: { month: string; count: number }[];
+          mostBorrowedBooks: Array<{
+            title: string;
+            author: string;
+            totalBorrowed: number;
+            borrowCount: number;
+          }>;
+        };
+      },
+      void
+    >({
+      query: () => "borrows/statistics",
+      providesTags: ["Borrow"],
     }),
   }),
 });
@@ -80,4 +94,4 @@ export const {
   useGetOverdueBooksQuery,
   useGetTotalBorrowedForBookQuery,
   useGetBorrowStatisticsQuery,
-} = borrowsApi; 
+} = borrowsApi;
