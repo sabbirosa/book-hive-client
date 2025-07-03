@@ -227,39 +227,28 @@ export default function EditBook() {
                             type="number"
                             min="0"
                             {...field}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value) || 0)
-                            }
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value) || 0;
+                              field.onChange(value);
+                              // Auto-set availability based on copies
+                              if (value <= 0) {
+                                form.setValue("available", false);
+                              } else if (
+                                value > 0 &&
+                                !form.getValues("available")
+                              ) {
+                                form.setValue("available", true);
+                              }
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="available"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Available</FormLabel>
-                        <Select
-                          onValueChange={(value) =>
-                            field.onChange(value === "true")
-                          }
-                          value={field.value ? "true" : "false"}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="true">Available</SelectItem>
-                            <SelectItem value="false">Unavailable</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
+                        {form.watch("copies") <= 0 && (
+                          <p className="text-sm text-amber-600">
+                            ⚠️ Setting copies to 0 will mark the book as
+                            unavailable
+                          </p>
+                        )}
                       </FormItem>
                     )}
                   />
