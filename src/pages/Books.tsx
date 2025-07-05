@@ -3,44 +3,44 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { GENRE_OPTIONS } from "@/constants";
 import {
-  useDeleteBookMutation,
-  useGetAllBooksQuery,
+    useDeleteBookMutation,
+    useGetAllBooksQuery,
 } from "@/redux/api/booksApi";
 import type { Book } from "@/types";
 import {
-  BookmarkPlus,
-  Edit,
-  Eye,
-  Plus,
-  RefreshCw,
-  Search,
-  Trash2,
+    BookmarkPlus,
+    Edit,
+    Eye,
+    Plus,
+    RefreshCw,
+    Search,
+    Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -63,7 +63,7 @@ export default function Books() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const { data, isLoading, error, refetch } = useGetAllBooksQuery({
+  const { data, isLoading, error, refetch, isFetching } = useGetAllBooksQuery({
     page,
     limit: 10,
     search: debouncedSearchTerm || undefined,
@@ -73,6 +73,18 @@ export default function Books() {
   });
 
   const [deleteBook, { isLoading: isDeleting }] = useDeleteBookMutation();
+
+  // Reset to page 1 if current page has no data but there are books available
+  useEffect(() => {
+    if (
+      data?.data &&
+      data.data.length === 0 &&
+      data.pagination?.totalBooks > 0 &&
+      page > 1
+    ) {
+      setPage(1);
+    }
+  }, [data, page]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -272,18 +284,26 @@ export default function Books() {
             </Table>
           </div>
 
+          {/* Loading state for pagination */}
+          {isFetching && !isLoading && (
+            <div className="flex justify-center py-4">
+              <LoadingSpinner />
+            </div>
+          )}
+
           {/* Pagination */}
-          {data?.pagination && (
+          {data?.pagination && data.pagination.totalBooks > 0 && (
             <div className="flex justify-between items-center mt-4">
               <div className="text-sm text-muted-foreground">
                 Showing {data.data.length} of {data.pagination.totalBooks} books
+                (Page {page} of {Math.ceil(data.pagination.totalBooks / 10)})
               </div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setPage(page - 1)}
-                  disabled={!data.pagination.hasPrev}
+                  disabled={!data.pagination.hasPrev || isFetching}
                 >
                   Previous
                 </Button>
@@ -291,7 +311,7 @@ export default function Books() {
                   variant="outline"
                   size="sm"
                   onClick={() => setPage(page + 1)}
-                  disabled={!data.pagination.hasNext}
+                  disabled={!data.pagination.hasNext || isFetching || data.data.length === 0}
                 >
                   Next
                 </Button>
